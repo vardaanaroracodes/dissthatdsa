@@ -81,7 +81,7 @@ function UnderlineDemo() {
   ];
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center bg-background">
+    <div className="w-full h-full flex flex-col items-center justify-center">
       <div className="w-full max-w-6xl mx-auto px-4">
         <AnimatedHeading />
         <div className="w-full grid grid-cols-2 md:grid-cols-2 gap-6 md:gap-8 lg:gap-10 justify-items-center">

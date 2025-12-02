@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import Component from "@/components/ui/retro-grid";
 import Link from "next/link";
 import { Volume2, VolumeX } from "lucide-react";
 
@@ -144,7 +143,7 @@ export default function RetroHero() {
 
   return (
     <div 
-      className="relative w-full h-screen bg-black overflow-hidden"
+      className="relative w-full h-screen overflow-hidden"
       onClick={handleUserInteraction}
       onMouseMove={handleMouseMove}
       onTouchStart={handleUserInteraction}
@@ -156,13 +155,6 @@ export default function RetroHero() {
         loop
         preload="auto"
         playsInline
-      />
-
-      <Component
-        gridColor={gridColor}
-        showScanlines={showScanlines}
-        glowEffect={glowEffect}
-        className="fixed inset-0 w-full h-full"
       />
 
       {/* Mute Button - Top Right */}
