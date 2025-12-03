@@ -1,6 +1,9 @@
+// API route for creating Razorpay payment orders
+// Validates user data and creates a pending registration in the database
+
 import { NextRequest, NextResponse } from "next/server";
 import Razorpay from "razorpay";
-import { db } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,
@@ -9,10 +12,10 @@ const razorpay = new Razorpay({
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, phone, classDate } = await request.json();
+    const { name, email, phone, classId } = await request.json();
 
     // Validate required fields
-    if (!name || !email || !phone || !classDate) {
+    if (!name || !email || !phone || !classId) {
       return NextResponse.json(
         { error: "All fields are required" },
         { status: 400 }
@@ -37,7 +40,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const amount = 29; // Fixed amount in rupees
+    // Check if class exists and is live
+    const classData = await prisma.class.findUnique({
+      where: { id: classId },
+    });
+
+    if (!classData) {
+      return NextResponse.json(
+        { error: "Class not found" },
+        { status: 404 }
+      );
+    }
+
+    if (!classData.isLive) {
+      return NextResponse.json(
+        { error: "Class is not available for registration" },
+        { status: 400 }
+      );
+    }
+
+    // Check if class is already full (if max participants set)
+    if (classData.maxParticipants) {
+      const registrationCount = await prisma.registration.count({
+        where: {
+          classId,
+          paymentStatus: 'COMPLETED',
+        },
+      });
+
+      if (registrationCount >= classData.maxParticipants) {
+        return NextResponse.json(
+          { error: "Class is full" },
+          { status: 400 }
+        );
+      }
+    }
+
+    const amount = classData.price;
     const currency = "INR";
 
     // Create Razorpay order
@@ -49,20 +88,21 @@ export async function POST(request: NextRequest) {
         name,
         email,
         phone,
-        classDate,
+        classId,
       },
     });
 
-    // Store registration in database
-    await db.createRegistration({
-      name,
-      email,
-      phone,
-      orderId: order.id,
-      paymentId: "",
-      amount,
-      status: "pending",
-      classDate,
+    // Store registration in database with pending status
+    await prisma.registration.create({
+      data: {
+        name,
+        email,
+        phone,
+        orderId: order.id,
+        amount,
+        paymentStatus: 'PENDING',
+        classId,
+      },
     });
 
     return NextResponse.json({

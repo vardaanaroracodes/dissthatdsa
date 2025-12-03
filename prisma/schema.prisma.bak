@@ -1,0 +1,180 @@
+// Prisma schema for class registration and admin management system
+// Uses Supabase PostgreSQL as the database provider
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Admin users with role-based access control
+// Superadmins can approve regular admins
+model Admin {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String   // Bcrypt hashed password
+  name          String
+  role          AdminRole @default(ADMIN)
+  isApproved    Boolean  @default(false) // Requires superadmin approval
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  createdClasses Class[]  @relation("ClassCreator")
+  sentEmails     Email[]  @relation("EmailSender")
+
+  @@index([email])
+  @@index([isApproved])
+}
+
+enum AdminRole {
+  ADMIN
+  SUPERADMIN
+}
+
+// Class sessions that users can register for
+model Class {
+  id              String   @id @default(cuid())
+  title           String
+  description     String   @db.Text
+  scheduledAt     DateTime // Class start time
+  duration        Int      @default(60) // Duration in minutes
+  meetingLink     String?  // Video conference link
+  price           Int      @default(29) // Price in rupees
+  isLive          Boolean  @default(false) // Published and visible to users
+  maxParticipants Int?     // Optional participant limit
+
+  createdById     String
+  createdBy       Admin    @relation("ClassCreator", fields: [createdById], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  registrations   Registration[]
+
+  @@index([isLive])
+  @@index([scheduledAt])
+  @@index([createdById])
+}
+
+// User registrations for classes
+model Registration {
+  id              String   @id @default(cuid())
+
+  // User information
+  name            String
+  email           String
+  phone           String
+
+  // Payment information
+  orderId         String   @unique // Razorpay order ID
+  paymentId       String?  // Razorpay payment ID (null if pending)
+  amount          Int      // Amount in rupees
+  paymentStatus   PaymentStatus @default(PENDING)
+
+  // Class relationship
+  classId         String
+  class           Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+
+  // Timestamps
+  registeredAt    DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  emailsSent      EmailRecipient[]
+
+  @@index([email])
+  @@index([classId])
+  @@index([paymentStatus])
+  @@index([orderId])
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+// Email campaigns sent to registered users
+model Email {
+  id            String   @id @default(cuid())
+  subject       String
+  body          String   @db.Text // Email content (HTML supported)
+
+  // Sender information
+  sentById      String
+  sentBy        Admin    @relation("EmailSender", fields: [sentById], references: [id], onDelete: Cascade)
+
+  // Associated class (optional - can send emails to users across classes)
+  classId       String?
+
+  sentAt        DateTime @default(now())
+
+  // Relations
+  recipients    EmailRecipient[]
+
+  @@index([sentById])
+  @@index([classId])
+  @@index([sentAt])
+}
+
+// Individual email delivery status tracking
+model EmailRecipient {
+  id              String   @id @default(cuid())
+
+  // Email relationship
+  emailId         String
+  email           Email    @relation(fields: [emailId], references: [id], onDelete: Cascade)
+
+  // Recipient relationship
+  registrationId  String
+  registration    Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  // Delivery tracking
+  status          EmailStatus @default(PENDING)
+  sentAt          DateTime?
+  deliveredAt     DateTime?
+  bouncedAt       DateTime?
+  clickedAt       DateTime?
+  openedAt        DateTime?
+
+  // Error tracking
+  errorMessage    String?
+
+  @@index([emailId])
+  @@index([registrationId])
+  @@index([status])
+  @@unique([emailId, registrationId])
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  DELIVERED
+  BOUNCED
+  OPENED
+  CLICKED
+  FAILED
+}
+
+// Automated reminder emails schedule
+model ReminderSchedule {
+  id              String   @id @default(cuid())
+  classId         String   @unique
+  reminderSentAt  DateTime?
+  status          ReminderStatus @default(SCHEDULED)
+  createdAt       DateTime @default(now())
+
+  @@index([status])
+}
+
+enum ReminderStatus {
+  SCHEDULED
+  SENT
+  FAILED
+}
