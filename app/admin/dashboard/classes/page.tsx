@@ -265,11 +265,11 @@ export default function ClassesPage() {
       {/* Classes Grid */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {classes.map((classItem) => (
-          <Card key={classItem.id} className="border border-border bg-background p-5 shadow-sm">
+          <Card key={classItem.id} className="border border-zinc-800 bg-zinc-900/80 p-5 text-zinc-50 shadow-sm">
             <div className="mb-3 flex items-start justify-between gap-3">
               <div className="flex-1">
                 <div className="mb-1 flex items-center gap-2">
-                  <h3 className="truncate text-sm font-semibold">
+                  <h3 className="truncate text-sm font-semibold text-zinc-50">
                     {classItem.title}
                   </h3>
                   <Badge
@@ -279,13 +279,13 @@ export default function ClassesPage() {
                     {classItem.isLive ? "Live" : "Draft"}
                   </Badge>
                 </div>
-                <p className="line-clamp-2 text-xs text-muted-foreground">{classItem.description}</p>
+                <p className="line-clamp-2 text-xs text-zinc-400">{classItem.description}</p>
               </div>
             </div>
 
-            <div className="mb-3 space-y-1.5 text-xs text-muted-foreground">
+            <div className="mb-3 space-y-1.5 text-xs text-zinc-400">
               <div className="flex items-center">
-                <Calendar className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
+                <Calendar className="mr-2 h-3.5 w-3.5 text-zinc-500" />
                 {new Date(classItem.scheduledAt).toLocaleString('en-IN', {
                   month: 'long',
                   day: 'numeric',
@@ -294,13 +294,13 @@ export default function ClassesPage() {
                 })}
               </div>
               <div className="flex items-center">
-                <Users className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
+                <Users className="mr-2 h-3.5 w-3.5 text-zinc-500" />
                 <span>
                   {classItem.registrationCount} registered
                   {classItem.maxParticipants && ` / ${classItem.maxParticipants} max`}
                 </span>
               </div>
-              <div className="text-sm font-semibold text-foreground">₹{classItem.price}</div>
+              <div className="text-sm font-semibold text-zinc-50">₹{classItem.price}</div>
             </div>
 
             <div className="flex gap-2">
@@ -308,7 +308,7 @@ export default function ClassesPage() {
                 size="sm"
                 variant="outline"
                 onClick={() => toggleLive(classItem.id, classItem.isLive)}
-                className="flex-1"
+                className="flex-1 text-black hover:border hover:border-black hover:bg-red-300 "
               >
                 {classItem.isLive ? <EyeOff className="mr-2 h-3.5 w-3.5" /> : <Eye className="mr-2 h-3.5 w-3.5" />}
                 {classItem.isLive ? "Unpublish" : "Go live"}
@@ -319,7 +319,7 @@ export default function ClassesPage() {
                 onClick={() => openEditDialog(classItem)}
                 className="border-border"
               >
-                <Edit className="h-3.5 w-3.5" />
+                <Edit className="h-3.5 w-3.5 text-black" />
               </Button>
               <Button
                 size="sm"

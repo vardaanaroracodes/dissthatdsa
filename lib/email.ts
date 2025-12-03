@@ -19,12 +19,12 @@ interface SendEmailParams {
 export async function sendEmail({ to, subject, html, registrationId, emailId }: SendEmailParams) {
   try {
     const result = await resend.emails.send({
-      from: 'Class Notifications <noreply@yourdomain.com>', // Update with your verified domain
+      from: 'admin@dissthatdsa.dev', // Update with your verified domain
       to,
       subject,
       html,
     })
-
+    console.log('Email sent:', result)
     // Track email in database if emailId and registrationId provided
     if (emailId && registrationId) {
       await prisma.emailRecipient.update({
@@ -296,4 +296,89 @@ export async function sendBulkEmail(
   }
 
   return results
+}
+
+// Notify superadmins when a new admin requests access
+export async function notifySuperAdminsNewAdminRequest(adminEmail: string, adminName: string) {
+  // Get all superadmins
+  const superadmins = await prisma.admin.findMany({
+    where: {
+      role: 'SUPERADMIN',
+      isApproved: true,
+    },
+  })
+
+  if (superadmins.length === 0) {
+    console.warn('No superadmins found to notify about new admin request')
+    return { success: false, error: 'No superadmins found' }
+  }
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>New Admin Access Request</title>
+      </head>
+      <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+          <h1 style="margin: 0; font-size: 28px;">🔔 New Admin Access Request</h1>
+        </div>
+
+        <div style="background: #f9fafb; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 10px 10px;">
+          <p style="font-size: 16px; margin-bottom: 20px;">
+            A new admin has requested access to the admin dashboard.
+          </p>
+
+          <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #dc2626; margin: 25px 0;">
+            <h2 style="margin-top: 0; color: #dc2626; font-size: 20px;">Request Details</h2>
+            <p style="margin: 10px 0;"><strong>Name:</strong> ${adminName}</p>
+            <p style="margin: 10px 0;"><strong>Email:</strong> ${adminEmail}</p>
+            <p style="margin: 10px 0;"><strong>Method:</strong> Google OAuth</p>
+          </div>
+
+          <div style="background: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 25px 0;">
+            <p style="margin: 0; color: #92400e;">
+              <strong>⚠️ Action Required:</strong> Please review and approve this request from the Admin Approvals section.
+            </p>
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/admin/dashboard/approvals"
+               style="display: inline-block; background: #dc2626; color: white; padding: 15px 40px; text-decoration: none; border-radius: 8px; font-size: 18px; font-weight: bold;">
+              Review Request
+            </a>
+          </div>
+
+          <p style="font-size: 16px; margin-top: 25px;">
+            Best regards,<br>
+            <strong>Dissthat DSA Admin System</strong>
+          </p>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px; padding: 20px; color: #6b7280; font-size: 14px;">
+          <p>This is an automated notification. Please do not reply to this message.</p>
+        </div>
+      </body>
+    </html>
+  `
+
+  // Send to all superadmins
+  const sendPromises = superadmins.map((superadmin) =>
+    sendEmail({
+      to: superadmin.email,
+      subject: '🔔 New Admin Access Request - Action Required',
+      html,
+    })
+  )
+
+  const results = await Promise.all(sendPromises)
+  const successCount = results.filter((r) => r.success).length
+
+  return {
+    success: successCount > 0,
+    notified: successCount,
+    total: superadmins.length,
+  }
 }

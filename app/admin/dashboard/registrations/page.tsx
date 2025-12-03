@@ -58,6 +58,7 @@ export default function RegistrationsPage() {
         const response = await fetch(`/api/admin/classes/${classItem.id}`);
         const data = await response.json();
         if (data.class?.registrations) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           allRegistrations.push(...data.class.registrations.map((r: any) => ({
             ...r,
             class: {
@@ -147,7 +148,7 @@ export default function RegistrationsPage() {
       </div>
 
       {/* Filters */}
-      <Card className="border border-border bg-background p-5 shadow-sm">
+      <Card className="border border-zinc-800 bg-zinc-900/80 p-5 text-zinc-50 shadow-sm">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           {/* Search */}
           <div className="relative">
@@ -156,16 +157,16 @@ export default function RegistrationsPage() {
               placeholder="Search by name, email, or phone..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="border-zinc-800 bg-zinc-950 pl-10 text-zinc-50"
             />
           </div>
 
           {/* Class Filter */}
           <Select value={selectedClass} onValueChange={setSelectedClass}>
-            <SelectTrigger>
+            <SelectTrigger className="border-zinc-800 bg-zinc-950 text-zinc-50">
               <SelectValue placeholder="All classes" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="border-zinc-800 bg-zinc-900 text-zinc-50">
               <SelectItem value="all">All classes</SelectItem>
               {classes.map((c) => (
                 <SelectItem key={c.id} value={c.id}>
@@ -177,10 +178,10 @@ export default function RegistrationsPage() {
 
           {/* Status Filter */}
           <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-            <SelectTrigger>
+            <SelectTrigger className="border-zinc-800 bg-zinc-950 text-zinc-50">
               <SelectValue placeholder="All statuses" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="border-zinc-800 bg-zinc-900 text-zinc-50">
               <SelectItem value="all">All statuses</SelectItem>
               <SelectItem value="COMPLETED">Completed</SelectItem>
               <SelectItem value="PENDING">Pending</SelectItem>
@@ -192,7 +193,7 @@ export default function RegistrationsPage() {
           <Button
             onClick={exportToCSV}
             disabled={filteredRegistrations.length === 0}
-            className="justify-center"
+            className="justify-center border-zinc-700 bg-zinc-950 text-zinc-50 hover:border-zinc-500 hover:bg-zinc-900"
           >
             <Download className="mr-2 h-3.5 w-3.5" />
             Export CSV
@@ -201,19 +202,19 @@ export default function RegistrationsPage() {
 
         {/* Stats */}
         <div className="mt-5 grid grid-cols-3 gap-4 text-sm">
-          <div className="rounded-md border border-border bg-muted/60 px-3 py-2 text-left">
-            <p className="text-xs text-muted-foreground">Total registrations</p>
-            <p className="text-lg font-semibold">{filteredRegistrations.length}</p>
+          <div className="rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-left">
+            <p className="text-xs text-zinc-400">Total registrations</p>
+            <p className="text-lg font-semibold text-zinc-50">{filteredRegistrations.length}</p>
           </div>
-          <div className="rounded-md border border-border bg-muted/60 px-3 py-2 text-left">
-            <p className="text-xs text-muted-foreground">Completed</p>
-            <p className="text-lg font-semibold text-emerald-700">
+          <div className="rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-left">
+            <p className="text-xs text-zinc-400">Completed</p>
+            <p className="text-lg font-semibold text-emerald-400">
               {filteredRegistrations.filter((r) => r.paymentStatus === "COMPLETED").length}
             </p>
           </div>
-          <div className="rounded-md border border-border bg-muted/60 px-3 py-2 text-left">
-            <p className="text-xs text-muted-foreground">Total revenue</p>
-            <p className="text-lg font-semibold">
+          <div className="rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-left">
+            <p className="text-xs text-zinc-400">Total revenue</p>
+            <p className="text-lg font-semibold text-zinc-50">
               ₹
               {filteredRegistrations
                 .filter((r) => r.paymentStatus === "COMPLETED")
@@ -225,42 +226,42 @@ export default function RegistrationsPage() {
       </Card>
 
       {/* Table */}
-      <Card className="overflow-hidden border border-border bg-background shadow-sm">
+      <Card className="overflow-hidden border border-zinc-800 bg-zinc-900/80 text-zinc-50 shadow-sm">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="border-border">
-                <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Name</TableHead>
-                <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Email</TableHead>
-                <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Phone</TableHead>
-                <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Class</TableHead>
-                <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Status</TableHead>
-                <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Amount</TableHead>
-                <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Registered</TableHead>
+              <TableRow className="border-zinc-800">
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-zinc-400">Name</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-zinc-400">Email</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-zinc-400">Phone</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-zinc-400">Class</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-zinc-400">Status</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-zinc-400">Amount</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-zinc-400">Registered</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredRegistrations.length > 0 ? (
                 filteredRegistrations.map((registration) => (
-                  <TableRow key={registration.id} className="border-border">
-                    <TableCell className="py-3 text-sm font-medium">{registration.name}</TableCell>
-                    <TableCell className="py-3 text-xs text-muted-foreground">{registration.email}</TableCell>
-                    <TableCell className="py-3 text-xs text-muted-foreground">{registration.phone}</TableCell>
-                    <TableCell className="py-3 text-xs text-muted-foreground">{registration.class.title}</TableCell>
+                  <TableRow key={registration.id} className="border-zinc-800">
+                    <TableCell className="py-3 text-sm font-medium text-zinc-50">{registration.name}</TableCell>
+                    <TableCell className="py-3 text-xs text-zinc-400">{registration.email}</TableCell>
+                    <TableCell className="py-3 text-xs text-zinc-400">{registration.phone}</TableCell>
+                    <TableCell className="py-3 text-xs text-zinc-400">{registration.class.title}</TableCell>
                     <TableCell className="py-3">
                       <Badge className={getStatusColor(registration.paymentStatus)}>
                         {registration.paymentStatus}
                       </Badge>
                     </TableCell>
-                    <TableCell className="py-3 text-xs text-muted-foreground">₹{registration.amount}</TableCell>
-                    <TableCell className="py-3 text-xs text-muted-foreground">
+                    <TableCell className="py-3 text-xs text-zinc-400">₹{registration.amount}</TableCell>
+                    <TableCell className="py-3 text-xs text-zinc-400">
                       {new Date(registration.registeredAt).toLocaleDateString("en-IN")}
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-8 text-center text-xs text-muted-foreground">
+                  <TableCell colSpan={7} className="py-8 text-center text-xs text-zinc-500">
                     {isLoading ? "Loading…" : "No registrations found"}
                   </TableCell>
                 </TableRow>

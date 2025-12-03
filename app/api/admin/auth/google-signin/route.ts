@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { notifySuperAdminsNewAdminRequest } from "@/lib/email";
 
 export const runtime = "nodejs";
 
@@ -32,6 +33,13 @@ export async function POST(request: NextRequest) {
           isApproved: false,
         }
       });
+
+      // Notify superadmins about the new admin request
+      // Don't await to avoid blocking the response
+      notifySuperAdminsNewAdminRequest(email, name || email.split('@')[0])
+        .catch((error) => {
+          console.error('Failed to notify superadmins:', error);
+        });
 
       return NextResponse.json({
         approved: false,

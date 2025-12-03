@@ -84,67 +84,67 @@ export default function AdminDashboard() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="border border-border bg-background shadow-sm">
+        <Card className="border border-zinc-800 bg-zinc-900/80 text-zinc-50 shadow-sm">
           <div className="flex items-center justify-between gap-4 p-4">
             <div className="space-y-1">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
                 Total classes
               </p>
-              <p className="text-3xl font-semibold">
+              <p className="text-3xl font-semibold text-zinc-50">
                 {stats?.totalClasses ?? "–"}
               </p>
             </div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 text-zinc-100">
               <Calendar className="h-5 w-5" />
             </div>
           </div>
         </Card>
 
-        <Card className="border border-border bg-background shadow-sm">
+        <Card className="border border-zinc-800 bg-zinc-900/80 text-zinc-50 shadow-sm">
           <div className="flex items-center justify-between gap-4 p-4">
             <div className="space-y-1">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
                 Live now
               </p>
-              <p className="text-3xl font-semibold">
+              <p className="text-3xl font-semibold text-zinc-50">
                 {stats?.liveClasses ?? "–"}
               </p>
             </div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-900/70 text-emerald-200">
               <TrendingUp className="h-5 w-5" />
             </div>
           </div>
         </Card>
 
-        <Card className="border border-border bg-background shadow-sm">
+        <Card className="border border-zinc-800 bg-zinc-900/80 text-zinc-50 shadow-sm">
           <div className="flex items-center justify-between gap-4 p-4">
             <div className="space-y-1">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
                 Registrations
               </p>
-              <p className="text-3xl font-semibold">
+              <p className="text-3xl font-semibold text-zinc-50">
                 {stats?.totalRegistrations ?? "–"}
               </p>
             </div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sky-100 text-sky-700">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sky-900/70 text-sky-200">
               <Users className="h-5 w-5" />
             </div>
           </div>
         </Card>
 
-        <Card className="border border-border bg-background shadow-sm">
+        <Card className="border border-zinc-800 bg-zinc-900/80 text-zinc-50 shadow-sm">
           <div className="flex items-center justify-between gap-4 p-4">
             <div className="space-y-1">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
                 Total revenue
               </p>
-              <p className="text-3xl font-semibold">
+              <p className="text-3xl font-semibold text-zinc-50">
                 {stats
                   ? `₹${stats.totalRevenue.toLocaleString("en-IN")}`
                   : "–"}
               </p>
             </div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-100 text-violet-700">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-900/70 text-violet-200">
               <DollarSign className="h-5 w-5" />
             </div>
           </div>
@@ -152,20 +152,20 @@ export default function AdminDashboard() {
       </div>
 
       {/* Recent Classes */}
-      <Card className="border border-border bg-background p-5 shadow-sm">
+      <Card className="border border-zinc-800 bg-zinc-900/80 p-5 text-zinc-50 shadow-sm">
         <div className="mb-4 flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-sm font-semibold tracking-tight">
+            <h2 className="text-sm font-semibold tracking-tight text-zinc-50">
               Upcoming classes
             </h2>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-zinc-400">
               Next few sessions with registration counts.
             </p>
           </div>
         </div>
 
         {isLoading ? (
-          <div className="flex h-32 items-center justify-center text-xs text-muted-foreground">
+          <div className="flex h-32 items-center justify-center text-xs text-zinc-500">
             Loading dashboard…
           </div>
         ) : stats?.recentClasses && stats.recentClasses.length > 0 ? (
@@ -173,13 +173,13 @@ export default function AdminDashboard() {
             {stats.recentClasses.map((classItem) => (
               <div
                 key={classItem.id}
-                className="flex items-center justify-between gap-4 rounded-md border bg-muted px-3 py-2 text-sm transition-colors hover:bg-muted/80"
+                className="flex items-center justify-between gap-4 rounded-md border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 transition-colors hover:bg-zinc-800"
               >
                 <div className="min-w-0">
-                  <p className="truncate font-medium">
+                  <p className="truncate font-medium text-zinc-50">
                     {classItem.title}
                   </p>
-                  <p className="truncate text-xs text-muted-foreground">
+                  <p className="truncate text-xs text-zinc-400">
                     {new Date(classItem.scheduledAt).toLocaleString("en-IN", {
                       month: "short",
                       day: "numeric",
@@ -189,16 +189,16 @@ export default function AdminDashboard() {
                   </p>
                 </div>
                 <div className="text-right text-xs">
-                  <p className="font-semibold">
+                  <p className="font-semibold text-zinc-50">
                     {classItem.registrationCount}
                   </p>
-                  <p className="text-muted-foreground">registrations</p>
+                  <p className="text-zinc-500">registrations</p>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="flex h-32 flex-col items-center justify-center text-xs text-muted-foreground">
+          <div className="flex h-32 flex-col items-center justify-center text-xs text-zinc-500">
             <p>No upcoming classes scheduled.</p>
           </div>
         )}
@@ -208,39 +208,39 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <a
           href="/admin/dashboard/classes"
-          className="group rounded-lg border border-border bg-background p-4 text-sm shadow-sm transition-colors hover:bg-muted"
+          className="group rounded-lg border border-zinc-800 bg-zinc-900/80 p-4 text-sm text-zinc-50 shadow-sm transition-colors hover:bg-zinc-800"
         >
           <div className="mb-3 flex items-center gap-2">
             <Calendar className="h-4 w-4" />
             <span className="font-medium">Manage classes</span>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-zinc-400">
             Create, edit and publish upcoming sessions.
           </p>
         </a>
 
         <a
           href="/admin/dashboard/registrations"
-          className="group rounded-lg border border-border bg-background p-4 text-sm shadow-sm transition-colors hover:bg-muted"
+          className="group rounded-lg border border-zinc-800 bg-zinc-900/80 p-4 text-sm text-zinc-50 shadow-sm transition-colors hover:bg-zinc-800"
         >
           <div className="mb-3 flex items-center gap-2">
             <Users className="h-4 w-4" />
             <span className="font-medium">View registrations</span>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-zinc-400">
             See who signed up and payment status.
           </p>
         </a>
 
         <a
           href="/admin/dashboard/emails"
-          className="group rounded-lg border border-border bg-background p-4 text-sm shadow-sm transition-colors hover:bg-muted"
+          className="group rounded-lg border border-zinc-800 bg-zinc-900/80 p-4 text-sm text-zinc-50 shadow-sm transition-colors hover:bg-zinc-800"
         >
           <div className="mb-3 flex items-center gap-2">
             <Mail className="h-4 w-4" />
             <span className="font-medium">Email campaigns</span>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-zinc-400">
             Send reminders, updates and follow-ups.
           </p>
         </a>

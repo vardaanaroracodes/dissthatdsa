@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+// Updated class signup page with dynamic live class loading
+// Users select from available live classes created by admins
+
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import SuccessModal from "@/components/SuccessModal";
 
 declare global {
   interface Window {
@@ -14,7 +16,19 @@ interface FormData {
   name: string;
   email: string;
   phone: string;
-  classDate: string;
+  classId: string;
+}
+
+interface LiveClass {
+  id: string;
+  title: string;
+  description: string;
+  scheduledAt: string;
+  duration: number;
+  price: number;
+  registrationCount: number;
+  availableSpots: number | null;
+  isFull: boolean;
 }
 
 export default function ClassSignup() {
@@ -22,10 +36,40 @@ export default function ClassSignup() {
     name: "",
     email: "",
     phone: "",
-    classDate: "",
+    classId: "",
   });
+  const [liveClasses, setLiveClasses] = useState<LiveClass[]>([]);
+  const [selectedClass, setSelectedClass] = useState<LiveClass | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isLoadingClasses, setIsLoadingClasses] = useState(true);
+
+  // Fetch live classes on mount
+  useEffect(() => {
+    fetchLiveClasses();
+  }, []);
+
+  // Update selected class when classId changes
+  useEffect(() => {
+    if (formData.classId) {
+      const classData = liveClasses.find((c) => c.id === formData.classId);
+      setSelectedClass(classData || null);
+    } else {
+      setSelectedClass(null);
+    }
+  }, [formData.classId, liveClasses]);
+
+  const fetchLiveClasses = async () => {
+    try {
+      const response = await fetch("/api/classes/live");
+      const data = await response.json();
+      setLiveClasses(data.classes || []);
+    } catch (error) {
+      console.error("Failed to fetch classes:", error);
+      toast.error("Failed to load available classes");
+    } finally {
+      setIsLoadingClasses(false);
+    }
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -55,8 +99,13 @@ export default function ClassSignup() {
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.email || !formData.phone || !formData.classDate) {
+    if (!formData.name || !formData.email || !formData.phone || !formData.classId) {
       toast.error("Please fill all fields");
+      return;
+    }
+
+    if (selectedClass?.isFull) {
+      toast.error("This class is full");
       return;
     }
 
@@ -93,7 +142,7 @@ export default function ClassSignup() {
         amount: orderData.amount,
         currency: orderData.currency,
         name: "Diss That DSA",
-        description: "Class Registration Fee",
+        description: selectedClass?.title || "Class Registration Fee",
         order_id: orderData.orderId,
         handler: async function (response: any) {
           try {
@@ -109,15 +158,16 @@ export default function ClassSignup() {
             });
 
             if (verifyResponse.ok) {
-              setShowSuccessModal(true);
-              toast.success("Payment successful!");
+              toast.success("Payment successful! Check your email for confirmation.");
               // Reset form
               setFormData({
                 name: "",
                 email: "",
                 phone: "",
-                classDate: "",
+                classId: "",
               });
+              // Refresh classes to update registration count
+              fetchLiveClasses();
             } else {
               toast.error("Payment verification failed");
             }
@@ -153,179 +203,224 @@ export default function ClassSignup() {
     }
   };
 
-  // Generate class date options (next 7 days)
-  const getClassDateOptions = () => {
-    const options = [];
-    const today = new Date();
-
-    for (let i = 1; i <= 7; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      date.setHours(18, 0, 0, 0); // Set to 6 PM
-
-      const value = date.toISOString();
-      const label = date.toLocaleDateString('en-IN', {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-
-      options.push({ value, label });
-    }
-
-    return options;
-  };
-
   return (
     <div className="min-h-screen bg-black text-white py-20 px-4">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 text-red-600">
-            Join Our DSA Class
+            Join Our DSA Classes
           </h1>
           <p className="text-xl text-gray-300 mb-2">
             Master Data Structures & Algorithms
           </p>
-          <div className="inline-block bg-red-600/20 border-2 border-red-600 rounded-lg px-6 py-3 mt-4">
-            <p className="text-3xl font-bold text-red-600">₹29</p>
-            <p className="text-sm text-gray-400">One-time payment</p>
-          </div>
         </div>
 
-        {/* Form */}
-        <div className="bg-gray-900 border-2 border-red-600 rounded-lg p-8 shadow-2xl shadow-red-600/50">
-          <form onSubmit={handlePayment} className="space-y-6">
-            {/* Name */}
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium mb-2">
-                Full Name *
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-3 bg-black border border-red-600/50 rounded-lg focus:outline-none focus:border-red-600 transition-colors"
-                placeholder="Enter your full name"
-              />
-            </div>
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Registration Form */}
+          <div className="bg-gray-900 border-2 border-red-600 rounded-lg p-8">
+            <h2 className="text-2xl font-bold text-white mb-6">Registration Form</h2>
+            <form onSubmit={handlePayment} className="space-y-6">
+              {/* Name */}
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium mb-2">
+                  Full Name *
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 bg-black border border-red-600/50 rounded-lg focus:outline-none focus:border-red-600 transition-colors"
+                  placeholder="Enter your full name"
+                />
+              </div>
 
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-2">
-                Email Address *
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-3 bg-black border border-red-600/50 rounded-lg focus:outline-none focus:border-red-600 transition-colors"
-                placeholder="your.email@example.com"
-              />
-            </div>
+              {/* Email */}
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium mb-2">
+                  Email Address *
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 bg-black border border-red-600/50 rounded-lg focus:outline-none focus:border-red-600 transition-colors"
+                  placeholder="your.email@example.com"
+                />
+              </div>
 
-            {/* Phone */}
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium mb-2">
-                Phone Number *
-              </label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                required
-                pattern="[0-9]{10}"
-                className="w-full px-4 py-3 bg-black border border-red-600/50 rounded-lg focus:outline-none focus:border-red-600 transition-colors"
-                placeholder="10-digit mobile number"
-              />
-              <p className="text-xs text-gray-400 mt-1">
-                Enter 10-digit mobile number without country code
-              </p>
-            </div>
+              {/* Phone */}
+              <div>
+                <label htmlFor="phone" className="block text-sm font-medium mb-2">
+                  Phone Number *
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  required
+                  pattern="[0-9]{10}"
+                  className="w-full px-4 py-3 bg-black border border-red-600/50 rounded-lg focus:outline-none focus:border-red-600 transition-colors"
+                  placeholder="10-digit mobile number"
+                />
+              </div>
 
-            {/* Class Date */}
-            <div>
-              <label htmlFor="classDate" className="block text-sm font-medium mb-2">
-                Select Class Date & Time *
-              </label>
-              <select
-                id="classDate"
-                name="classDate"
-                value={formData.classDate}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-3 bg-black border border-red-600/50 rounded-lg focus:outline-none focus:border-red-600 transition-colors"
+              {/* Class Selection */}
+              <div>
+                <label htmlFor="classId" className="block text-sm font-medium mb-2">
+                  Select Class *
+                </label>
+                <select
+                  id="classId"
+                  name="classId"
+                  value={formData.classId}
+                  onChange={handleInputChange}
+                  required
+                  className="w-full px-4 py-3 bg-black border border-red-600/50 rounded-lg focus:outline-none focus:border-red-600 transition-colors"
+                >
+                  <option value="">Choose a class...</option>
+                  {liveClasses.map((classItem) => (
+                    <option
+                      key={classItem.id}
+                      value={classItem.id}
+                      disabled={classItem.isFull}
+                    >
+                      {classItem.title} - {new Date(classItem.scheduledAt).toLocaleDateString('en-IN')}
+                      {classItem.isFull ? " (FULL)" : ""}
+                    </option>
+                  ))}
+                </select>
+                {isLoadingClasses && (
+                  <p className="text-xs text-gray-400 mt-1">Loading classes...</p>
+                )}
+                {!isLoadingClasses && liveClasses.length === 0 && (
+                  <p className="text-xs text-yellow-400 mt-1">No classes available at the moment</p>
+                )}
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isLoading || !formData.classId || selectedClass?.isFull}
+                className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors duration-200 text-lg"
               >
-                <option value="">Choose a date...</option>
-                {getClassDateOptions().map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
+                {isLoading
+                  ? "Processing..."
+                  : selectedClass
+                  ? `Pay ₹${selectedClass.price} & Register`
+                  : "Select a class to continue"}
+              </button>
+            </form>
+          </div>
+
+          {/* Class Details */}
+          <div>
+            {selectedClass ? (
+              <div className="bg-gray-900 border-2 border-red-600 rounded-lg p-8">
+                <h2 className="text-2xl font-bold text-white mb-4">Class Details</h2>
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="text-xl font-semibold text-red-600 mb-2">
+                      {selectedClass.title}
+                    </h3>
+                    <p className="text-gray-300 text-sm">{selectedClass.description}</p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-red-600/30">
+                    <div>
+                      <p className="text-gray-400 text-sm">Date & Time</p>
+                      <p className="text-white font-medium">
+                        {new Date(selectedClass.scheduledAt).toLocaleString('en-IN', {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-gray-400 text-sm">Duration</p>
+                      <p className="text-white font-medium">{selectedClass.duration} minutes</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-400 text-sm">Price</p>
+                      <p className="text-red-600 font-bold text-2xl">₹{selectedClass.price}</p>
+                    </div>
+                    <div>
+                      <p className="text-gray-400 text-sm">Registered</p>
+                      <p className="text-white font-medium">
+                        {selectedClass.registrationCount}
+                        {selectedClass.availableSpots !== null &&
+                          ` / ${selectedClass.registrationCount + selectedClass.availableSpots}`}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mt-6">
+                    <p className="text-yellow-400 text-sm">
+                      <strong>⚠️ Important:</strong> After successful payment, you will receive a
+                      confirmation email. The class link will be sent to your email{" "}
+                      <strong>15 minutes before</strong> the scheduled time.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-gray-900 border-2 border-red-600 rounded-lg p-8 text-center">
+                <p className="text-gray-400">Select a class to view details</p>
+              </div>
+            )}
+
+            {/* Available Classes List */}
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold text-white mb-4">Available Classes</h2>
+              <div className="space-y-3">
+                {liveClasses.map((classItem) => (
+                  <div
+                    key={classItem.id}
+                    onClick={() => setFormData({ ...formData, classId: classItem.id })}
+                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                      formData.classId === classItem.id
+                        ? "border-red-600 bg-red-600/10"
+                        : "border-gray-700 bg-gray-900 hover:border-red-600/50"
+                    } ${classItem.isFull ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-semibold text-white">{classItem.title}</h3>
+                        <p className="text-sm text-gray-400 mt-1">
+                          {new Date(classItem.scheduledAt).toLocaleDateString('en-IN', {
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-red-600">₹{classItem.price}</p>
+                        {classItem.isFull && (
+                          <span className="text-xs bg-red-600 text-white px-2 py-1 rounded mt-1 inline-block">
+                            FULL
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </select>
+              </div>
             </div>
-
-            {/* Important Note */}
-            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-              <p className="text-yellow-400 text-sm">
-                <strong>⚠️ Important:</strong> After successful payment, you will receive a confirmation email. The class link will be sent to your email <strong>15 minutes before</strong> the scheduled time.
-              </p>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors duration-200 text-lg"
-            >
-              {isLoading ? "Processing..." : "Pay ₹29 & Register"}
-            </button>
-
-            {/* Security Note */}
-            <p className="text-xs text-gray-400 text-center">
-              Secure payment powered by Razorpay. Your payment information is encrypted and secure.
-            </p>
-          </form>
-        </div>
-
-        {/* Features */}
-        <div className="mt-12 grid md:grid-cols-3 gap-6">
-          <div className="text-center">
-            <div className="text-3xl mb-2">📚</div>
-            <h3 className="font-bold text-red-600 mb-1">Expert Teaching</h3>
-            <p className="text-sm text-gray-400">Learn from industry professionals</p>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl mb-2">💻</div>
-            <h3 className="font-bold text-red-600 mb-1">Live Session</h3>
-            <p className="text-sm text-gray-400">Interactive online class</p>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl mb-2">🎯</div>
-            <h3 className="font-bold text-red-600 mb-1">Practical Focus</h3>
-            <p className="text-sm text-gray-400">Real-world problem solving</p>
           </div>
         </div>
       </div>
-
-      {/* Success Modal */}
-      <SuccessModal
-        isOpen={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
-        name={formData.name}
-        email={formData.email}
-        classDate={formData.classDate}
-      />
     </div>
   );
 }

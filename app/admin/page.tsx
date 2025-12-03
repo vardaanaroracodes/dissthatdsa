@@ -23,7 +23,7 @@ function AdminLoginForm() {
 
   useEffect(() => {
     const error = searchParams.get("error");
-    if (error === "AccountPendingApproval") {
+    if (error === "AccountPendingApproval" || error === "pending_approval") {
       toast.error(
         "Your account is pending approval from a superadmin. Please check back later.",
       );
@@ -162,8 +162,7 @@ function AdminLoginForm() {
           </Button>
 
           <p className="mt-4 text-xs text-muted-foreground">
-            First time here? Sign in with Google to request access. A superadmin
-            will review and approve your account.
+            If you do not know about this and stumbled here just go back and enjoy your classes
           </p>
         </Card>
 
