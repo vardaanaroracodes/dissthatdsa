@@ -1,24 +1,21 @@
-"use client";
-import RetroHero from "@/components/Hero";
-import { UnderlineDemo } from "@/components/footer";
-import Services from "@/components/Services";
 import RetroGrid from "@/components/ui/retro-grid";
 
-export default function Home() {
+export default function SiteLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <div className="relative min-h-screen">
       <div className="pointer-events-none fixed inset-0 -z-10 hidden md:block">
         <RetroGrid
           gridColor="#ff0000"
-          showScanlines
-          glowEffect
+          showScanlines={true}
+          glowEffect={true}
           className="h-full w-full"
         />
       </div>
-
-      <RetroHero />
-      <Services />
-      <UnderlineDemo />
+      {children}
     </div>
   );
 }

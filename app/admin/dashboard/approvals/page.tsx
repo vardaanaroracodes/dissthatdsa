@@ -110,65 +110,75 @@ export default function ApprovalsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-4xl font-bold text-white flex items-center gap-2">
-          <Shield className="h-10 w-10 text-red-600" />
-          Admin Approvals
+      <div className="space-y-1">
+        <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight text-zinc-50">
+          <Shield className="h-6 w-6 text-emerald-400" />
+          Admin approvals
         </h1>
-        <p className="text-gray-400 mt-1">Manage admin access (Superadmin only)</p>
+        <p className="text-sm text-zinc-400">Review and approve new admin access (superadmin only).</p>
       </div>
 
       {/* Pending Admins */}
-      <Card className="bg-gray-900 border-2 border-red-600 p-6">
-        <h2 className="text-2xl font-bold text-white mb-4">
-          Pending Approvals
+      <Card className="border-zinc-800 bg-zinc-950/80 p-5 shadow-sm">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold tracking-tight text-zinc-50">
+              Pending approvals
+            </h2>
+            <p className="text-xs text-zinc-500">
+              New admins waiting for superadmin review.
+            </p>
+          </div>
           {pendingAdmins.length > 0 && (
-            <Badge className="ml-3 bg-yellow-600">{pendingAdmins.length}</Badge>
+            <Badge className="bg-amber-500/90 text-xs font-semibold text-zinc-950">
+              {pendingAdmins.length} pending
+            </Badge>
           )}
-        </h2>
+        </div>
 
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="border-red-600/30">
-                <TableHead className="text-white">Name</TableHead>
-                <TableHead className="text-white">Email</TableHead>
-                <TableHead className="text-white">Role</TableHead>
-                <TableHead className="text-white">Requested</TableHead>
-                <TableHead className="text-white">Actions</TableHead>
+              <TableRow className="border-zinc-800">
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-zinc-400">Name</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-zinc-400">Email</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-zinc-400">Role</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-zinc-400">Requested</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-zinc-400">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {pendingAdmins.length > 0 ? (
                 pendingAdmins.map((admin) => (
-                  <TableRow key={admin.id} className="border-red-600/30">
-                    <TableCell className="text-white font-medium">{admin.name}</TableCell>
-                    <TableCell className="text-gray-300">{admin.email}</TableCell>
-                    <TableCell>
-                      <Badge className={admin.role === 'SUPERADMIN' ? 'bg-red-600' : 'bg-blue-600'}>
+                  <TableRow key={admin.id} className="border-zinc-800">
+                    <TableCell className="py-3 text-sm font-medium text-zinc-50">{admin.name}</TableCell>
+                    <TableCell className="py-3 text-xs text-zinc-400">{admin.email}</TableCell>
+                    <TableCell className="py-3">
+                      <Badge className={admin.role === 'SUPERADMIN' ? 'bg-emerald-600 text-white' : 'bg-zinc-800 text-zinc-200'}>
                         {admin.role}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-gray-300">
+                    <TableCell className="py-3 text-xs text-zinc-400">
                       {new Date(admin.createdAt).toLocaleDateString("en-IN")}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="py-3">
                       <div className="flex gap-2">
                         <Button
                           size="sm"
+                          variant="outline"
                           onClick={() => handleApprove(admin.id)}
-                          className="bg-green-600 hover:bg-green-700"
+                          className="border-emerald-500/70 text-emerald-300 hover:border-emerald-400 hover:bg-emerald-500/10"
                         >
-                          <CheckCircle className="h-4 w-4 mr-1" />
+                          <CheckCircle className="mr-1 h-3.5 w-3.5" />
                           Approve
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => handleReject(admin.id)}
-                          className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white"
+                          className="border-red-500/70 text-red-400 hover:border-red-400 hover:bg-red-500/10"
                         >
-                          <XCircle className="h-4 w-4 mr-1" />
+                          <XCircle className="mr-1 h-3.5 w-3.5" />
                           Reject
                         </Button>
                       </div>
@@ -177,8 +187,8 @@ export default function ApprovalsPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center text-gray-400 py-8">
-                    {isLoading ? "Loading..." : "No pending approvals"}
+                  <TableCell colSpan={5} className="py-6 text-center text-xs text-zinc-500">
+                    {isLoading ? "Loading…" : "No pending approvals"}
                   </TableCell>
                 </TableRow>
               )}
@@ -188,48 +198,55 @@ export default function ApprovalsPage() {
       </Card>
 
       {/* Approved Admins */}
-      <Card className="bg-gray-900 border-2 border-red-600 p-6">
-        <h2 className="text-2xl font-bold text-white mb-4">
-          Approved Admins
+      <Card className="border-zinc-800 bg-zinc-950/80 p-5 shadow-sm">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold tracking-tight text-zinc-50">
+              Approved admins
+            </h2>
+            <p className="text-xs text-zinc-500">Existing admins and their activity.</p>
+          </div>
           {approvedAdmins.length > 0 && (
-            <Badge className="ml-3 bg-green-600">{approvedAdmins.length}</Badge>
+            <Badge className="bg-zinc-800 text-xs font-semibold text-zinc-100">
+              {approvedAdmins.length} total
+            </Badge>
           )}
-        </h2>
+        </div>
 
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="border-red-600/30">
-                <TableHead className="text-white">Name</TableHead>
-                <TableHead className="text-white">Email</TableHead>
-                <TableHead className="text-white">Role</TableHead>
-                <TableHead className="text-white">Classes Created</TableHead>
-                <TableHead className="text-white">Emails Sent</TableHead>
-                <TableHead className="text-white">Joined</TableHead>
+              <TableRow className="border-zinc-800">
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-zinc-400">Name</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-zinc-400">Email</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-zinc-400">Role</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-zinc-400">Classes</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-zinc-400">Emails</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-zinc-400">Joined</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {approvedAdmins.length > 0 ? (
                 approvedAdmins.map((admin) => (
-                  <TableRow key={admin.id} className="border-red-600/30">
-                    <TableCell className="text-white font-medium">{admin.name}</TableCell>
-                    <TableCell className="text-gray-300">{admin.email}</TableCell>
-                    <TableCell>
-                      <Badge className={admin.role === 'SUPERADMIN' ? 'bg-red-600' : 'bg-blue-600'}>
+                  <TableRow key={admin.id} className="border-zinc-800">
+                    <TableCell className="py-3 text-sm font-medium text-zinc-50">{admin.name}</TableCell>
+                    <TableCell className="py-3 text-xs text-zinc-400">{admin.email}</TableCell>
+                    <TableCell className="py-3">
+                      <Badge className={admin.role === 'SUPERADMIN' ? 'bg-emerald-600 text-white' : 'bg-zinc-800 text-zinc-200'}>
                         {admin.role}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-gray-300">{admin._count.createdClasses}</TableCell>
-                    <TableCell className="text-gray-300">{admin._count.sentEmails}</TableCell>
-                    <TableCell className="text-gray-300">
+                    <TableCell className="py-3 text-xs text-zinc-400">{admin._count.createdClasses}</TableCell>
+                    <TableCell className="py-3 text-xs text-zinc-400">{admin._count.sentEmails}</TableCell>
+                    <TableCell className="py-3 text-xs text-zinc-400">
                       {new Date(admin.createdAt).toLocaleDateString("en-IN")}
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-gray-400 py-8">
-                    {isLoading ? "Loading..." : "No approved admins"}
+                  <TableCell colSpan={6} className="py-6 text-center text-xs text-zinc-500">
+                    {isLoading ? "Loading…" : "No approved admins"}
                   </TableCell>
                 </TableRow>
               )}

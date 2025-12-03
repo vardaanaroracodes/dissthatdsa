@@ -70,148 +70,178 @@ export default function AdminDashboard() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-white text-xl">Loading dashboard...</div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-4xl font-bold text-white mb-2">Dashboard</h1>
-        <p className="text-gray-400">Welcome back! Here's your overview.</p>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
+          <p className="text-sm text-muted-foreground">
+            High-level snapshot of classes, registrations and revenue.
+          </p>
+        </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Total Classes */}
-        <Card className="bg-gradient-to-br from-red-600 to-red-700 border-0 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-red-100 text-sm font-medium">Total Classes</p>
-              <p className="text-4xl font-bold text-white mt-2">
-                {stats?.totalClasses || 0}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="border border-border bg-background shadow-sm">
+          <div className="flex items-center justify-between gap-4 p-4">
+            <div className="space-y-1">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Total classes
+              </p>
+              <p className="text-3xl font-semibold">
+                {stats?.totalClasses ?? "–"}
               </p>
             </div>
-            <Calendar className="h-12 w-12 text-red-200" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Calendar className="h-5 w-5" />
+            </div>
           </div>
         </Card>
 
-        {/* Live Classes */}
-        <Card className="bg-gradient-to-br from-green-600 to-green-700 border-0 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-green-100 text-sm font-medium">Live Classes</p>
-              <p className="text-4xl font-bold text-white mt-2">
-                {stats?.liveClasses || 0}
+        <Card className="border border-border bg-background shadow-sm">
+          <div className="flex items-center justify-between gap-4 p-4">
+            <div className="space-y-1">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Live now
+              </p>
+              <p className="text-3xl font-semibold">
+                {stats?.liveClasses ?? "–"}
               </p>
             </div>
-            <TrendingUp className="h-12 w-12 text-green-200" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+              <TrendingUp className="h-5 w-5" />
+            </div>
           </div>
         </Card>
 
-        {/* Total Registrations */}
-        <Card className="bg-gradient-to-br from-blue-600 to-blue-700 border-0 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-blue-100 text-sm font-medium">Registrations</p>
-              <p className="text-4xl font-bold text-white mt-2">
-                {stats?.totalRegistrations || 0}
+        <Card className="border border-border bg-background shadow-sm">
+          <div className="flex items-center justify-between gap-4 p-4">
+            <div className="space-y-1">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Registrations
+              </p>
+              <p className="text-3xl font-semibold">
+                {stats?.totalRegistrations ?? "–"}
               </p>
             </div>
-            <Users className="h-12 w-12 text-blue-200" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sky-100 text-sky-700">
+              <Users className="h-5 w-5" />
+            </div>
           </div>
         </Card>
 
-        {/* Total Revenue */}
-        <Card className="bg-gradient-to-br from-purple-600 to-purple-700 border-0 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-purple-100 text-sm font-medium">Total Revenue</p>
-              <p className="text-4xl font-bold text-white mt-2">
-                ₹{stats?.totalRevenue?.toLocaleString('en-IN') || 0}
+        <Card className="border border-border bg-background shadow-sm">
+          <div className="flex items-center justify-between gap-4 p-4">
+            <div className="space-y-1">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Total revenue
+              </p>
+              <p className="text-3xl font-semibold">
+                {stats
+                  ? `₹${stats.totalRevenue.toLocaleString("en-IN")}`
+                  : "–"}
               </p>
             </div>
-            <DollarSign className="h-12 w-12 text-purple-200" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-100 text-violet-700">
+              <DollarSign className="h-5 w-5" />
+            </div>
           </div>
         </Card>
       </div>
 
       {/* Recent Classes */}
-      <Card className="bg-gray-900 border-2 border-red-600 p-6">
-        <h2 className="text-2xl font-bold text-white mb-4">Upcoming Classes</h2>
+      <Card className="border border-border bg-background p-5 shadow-sm">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-sm font-semibold tracking-tight">
+              Upcoming classes
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Next few sessions with registration counts.
+            </p>
+          </div>
+        </div>
 
-        {stats?.recentClasses && stats.recentClasses.length > 0 ? (
-          <div className="space-y-3">
+        {isLoading ? (
+          <div className="flex h-32 items-center justify-center text-xs text-muted-foreground">
+            Loading dashboard…
+          </div>
+        ) : stats?.recentClasses && stats.recentClasses.length > 0 ? (
+          <div className="space-y-2">
             {stats.recentClasses.map((classItem) => (
               <div
                 key={classItem.id}
-                className="flex items-center justify-between p-4 bg-black rounded-lg border border-red-600/30 hover:border-red-600 transition-colors"
+                className="flex items-center justify-between gap-4 rounded-md border bg-muted px-3 py-2 text-sm transition-colors hover:bg-muted/80"
               >
-                <div>
-                  <h3 className="text-white font-semibold">{classItem.title}</h3>
-                  <p className="text-gray-400 text-sm mt-1">
-                    {new Date(classItem.scheduledAt).toLocaleString('en-IN', {
-                      weekday: 'long',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
+                <div className="min-w-0">
+                  <p className="truncate font-medium">
+                    {classItem.title}
+                  </p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {new Date(classItem.scheduledAt).toLocaleString("en-IN", {
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
                     })}
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="text-2xl font-bold text-red-600">
+                <div className="text-right text-xs">
+                  <p className="font-semibold">
                     {classItem.registrationCount}
                   </p>
-                  <p className="text-gray-400 text-sm">registrations</p>
+                  <p className="text-muted-foreground">registrations</p>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-gray-400 text-center py-8">
-            No upcoming classes scheduled
-          </p>
+          <div className="flex h-32 flex-col items-center justify-center text-xs text-muted-foreground">
+            <p>No upcoming classes scheduled.</p>
+          </div>
         )}
       </Card>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <a
           href="/admin/dashboard/classes"
-          className="bg-gray-900 border-2 border-red-600 rounded-lg p-6 hover:bg-gray-800 transition-colors group"
+          className="group rounded-lg border border-border bg-background p-4 text-sm shadow-sm transition-colors hover:bg-muted"
         >
-          <Calendar className="h-8 w-8 text-red-600 mb-3" />
-          <h3 className="text-white font-semibold text-lg mb-2">Manage Classes</h3>
-          <p className="text-gray-400 text-sm">
-            Create, edit, and publish your classes
+          <div className="mb-3 flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            <span className="font-medium">Manage classes</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Create, edit and publish upcoming sessions.
           </p>
         </a>
 
         <a
           href="/admin/dashboard/registrations"
-          className="bg-gray-900 border-2 border-red-600 rounded-lg p-6 hover:bg-gray-800 transition-colors group"
+          className="group rounded-lg border border-border bg-background p-4 text-sm shadow-sm transition-colors hover:bg-muted"
         >
-          <Users className="h-8 w-8 text-red-600 mb-3" />
-          <h3 className="text-white font-semibold text-lg mb-2">View Registrations</h3>
-          <p className="text-gray-400 text-sm">
-            See who registered for your classes
+          <div className="mb-3 flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            <span className="font-medium">View registrations</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            See who signed up and payment status.
           </p>
         </a>
 
         <a
           href="/admin/dashboard/emails"
-          className="bg-gray-900 border-2 border-red-600 rounded-lg p-6 hover:bg-gray-800 transition-colors group"
+          className="group rounded-lg border border-border bg-background p-4 text-sm shadow-sm transition-colors hover:bg-muted"
         >
-          <Mail className="h-8 w-8 text-red-600 mb-3" />
-          <h3 className="text-white font-semibold text-lg mb-2">Send Emails</h3>
-          <p className="text-gray-400 text-sm">
-            Create and send email campaigns
+          <div className="mb-3 flex items-center gap-2">
+            <Mail className="h-4 w-4" />
+            <span className="font-medium">Email campaigns</span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Send reminders, updates and follow-ups.
           </p>
         </a>
       </div>

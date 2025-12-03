@@ -166,103 +166,96 @@ export default function ClassesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold text-white">Classes</h1>
-          <p className="text-gray-400 mt-1">Manage your class schedule</p>
+          <h1 className="text-2xl font-semibold tracking-tight">Classes</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Create, update and publish upcoming sessions.</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => {
           setIsDialogOpen(open);
           if (!open) resetForm();
         }}>
           <DialogTrigger asChild>
-            <Button className="bg-red-600 hover:bg-red-700">
-              <Plus className="h-4 w-4 mr-2" />
-              Create Class
+            <Button size="sm" className="gap-2 rounded-full">
+              <Plus className="h-4 w-4" />
+              New class
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-gray-900 border-red-600 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-2xl">
-                {editingClass ? "Edit Class" : "Create New Class"}
+              <DialogTitle className="text-base font-semibold tracking-tight">
+                {editingClass ? "Edit class" : "Create class"}
               </DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
+            <form onSubmit={handleSubmit} className="space-y-4 text-sm">
+              <div className="space-y-1">
                 <Label>Title *</Label>
                 <Input
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   required
-                  className="bg-black border-red-600/50"
                 />
               </div>
-              <div>
+              <div className="space-y-1">
                 <Label>Description *</Label>
                 <Textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   required
                   rows={4}
-                  className="bg-black border-red-600/50"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Scheduled Date & Time *</Label>
+                <div className="space-y-1">
+                  <Label>Scheduled date & time *</Label>
                   <Input
                     type="datetime-local"
                     value={formData.scheduledAt}
                     onChange={(e) => setFormData({ ...formData, scheduledAt: e.target.value })}
                     required
-                    className="bg-black border-red-600/50"
                   />
                 </div>
-                <div>
+                <div className="space-y-1">
                   <Label>Duration (minutes)</Label>
                   <Input
                     type="number"
                     value={formData.duration}
                     onChange={(e) => setFormData({ ...formData, duration: parseInt(e.target.value) })}
                     required
-                    className="bg-black border-red-600/50"
                   />
                 </div>
               </div>
-              <div>
-                <Label>Meeting Link</Label>
+              <div className="space-y-1">
+                <Label>Meeting link</Label>
                 <Input
                   type="url"
                   value={formData.meetingLink}
                   onChange={(e) => setFormData({ ...formData, meetingLink: e.target.value })}
                   placeholder="https://meet.google.com/..."
-                  className="bg-black border-red-600/50"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div>
+                <div className="space-y-1">
                   <Label>Price (₹)</Label>
                   <Input
                     type="number"
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: parseInt(e.target.value) })}
                     required
-                    className="bg-black border-red-600/50"
                   />
                 </div>
-                <div>
-                  <Label>Max Participants (optional)</Label>
+                <div className="space-y-1">
+                  <Label>Max participants (optional)</Label>
                   <Input
                     type="number"
                     value={formData.maxParticipants}
                     onChange={(e) => setFormData({ ...formData, maxParticipants: e.target.value })}
                     placeholder="Unlimited"
-                    className="bg-black border-red-600/50"
                   />
                 </div>
               </div>
-              <Button type="submit" disabled={isLoading} className="w-full bg-red-600 hover:bg-red-700">
-                {isLoading ? "Saving..." : editingClass ? "Update Class" : "Create Class"}
+              <Button type="submit" disabled={isLoading} className="w-full">
+                {isLoading ? "Saving…" : editingClass ? "Save changes" : "Create class"}
               </Button>
             </form>
           </DialogContent>
@@ -270,24 +263,29 @@ export default function ClassesPage() {
       </div>
 
       {/* Classes Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {classes.map((classItem) => (
-          <Card key={classItem.id} className="bg-gray-900 border-2 border-red-600 p-6">
-            <div className="flex items-start justify-between mb-4">
+          <Card key={classItem.id} className="border border-border bg-background p-5 shadow-sm">
+            <div className="mb-3 flex items-start justify-between gap-3">
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="text-xl font-bold text-white">{classItem.title}</h3>
-                  <Badge variant={classItem.isLive ? "default" : "secondary"} className={classItem.isLive ? "bg-green-600" : ""}>
+                <div className="mb-1 flex items-center gap-2">
+                  <h3 className="truncate text-sm font-semibold">
+                    {classItem.title}
+                  </h3>
+                  <Badge
+                    variant={classItem.isLive ? "default" : "outline"}
+                    className={classItem.isLive ? "bg-emerald-100 text-emerald-700" : "border-muted text-muted-foreground"}
+                  >
                     {classItem.isLive ? "Live" : "Draft"}
                   </Badge>
                 </div>
-                <p className="text-gray-400 text-sm line-clamp-2">{classItem.description}</p>
+                <p className="line-clamp-2 text-xs text-muted-foreground">{classItem.description}</p>
               </div>
             </div>
 
-            <div className="space-y-2 mb-4">
-              <div className="flex items-center text-sm text-gray-300">
-                <Calendar className="h-4 w-4 mr-2 text-red-600" />
+            <div className="mb-3 space-y-1.5 text-xs text-muted-foreground">
+              <div className="flex items-center">
+                <Calendar className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
                 {new Date(classItem.scheduledAt).toLocaleString('en-IN', {
                   month: 'long',
                   day: 'numeric',
@@ -295,12 +293,14 @@ export default function ClassesPage() {
                   minute: '2-digit',
                 })}
               </div>
-              <div className="flex items-center text-sm text-gray-300">
-                <Users className="h-4 w-4 mr-2 text-red-600" />
-                {classItem.registrationCount} registered
-                {classItem.maxParticipants && ` / ${classItem.maxParticipants} max`}
+              <div className="flex items-center">
+                <Users className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
+                <span>
+                  {classItem.registrationCount} registered
+                  {classItem.maxParticipants && ` / ${classItem.maxParticipants} max`}
+                </span>
               </div>
-              <div className="text-2xl font-bold text-red-600">₹{classItem.price}</div>
+              <div className="text-sm font-semibold text-foreground">₹{classItem.price}</div>
             </div>
 
             <div className="flex gap-2">
@@ -310,23 +310,24 @@ export default function ClassesPage() {
                 onClick={() => toggleLive(classItem.id, classItem.isLive)}
                 className="flex-1"
               >
-                {classItem.isLive ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
-                {classItem.isLive ? "Unpublish" : "Go Live"}
+                {classItem.isLive ? <EyeOff className="mr-2 h-3.5 w-3.5" /> : <Eye className="mr-2 h-3.5 w-3.5" />}
+                {classItem.isLive ? "Unpublish" : "Go live"}
               </Button>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => openEditDialog(classItem)}
+                className="border-border"
               >
-                <Edit className="h-4 w-4" />
+                <Edit className="h-3.5 w-3.5" />
               </Button>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => handleDelete(classItem.id)}
-                className="text-red-600 border-red-600"
+                className="border-destructive/40 text-destructive hover:border-destructive hover:bg-destructive/10"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-3.5 w-3.5" />
               </Button>
             </div>
           </Card>
@@ -334,8 +335,8 @@ export default function ClassesPage() {
       </div>
 
       {classes.length === 0 && !isLoading && (
-        <div className="text-center py-12">
-          <p className="text-gray-400 text-lg">No classes yet. Create your first class!</p>
+        <div className="py-10 text-center text-sm text-muted-foreground">
+          No classes yet. Create your first one to get started.
         </div>
       )}
     </div>

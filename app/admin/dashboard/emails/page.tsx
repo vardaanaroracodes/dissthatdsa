@@ -118,25 +118,25 @@ export default function EmailsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-4xl font-bold text-white">Email Campaigns</h1>
-        <p className="text-gray-400 mt-1">Send emails to registered users</p>
+      <div className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">Email campaigns</h1>
+        <p className="text-sm text-zinc-400">Target registrants with reminders, updates and follow-ups.</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Email Composer */}
-        <Card className="lg:col-span-2 bg-gray-900 border-2 border-red-600 p-6">
-          <h2 className="text-2xl font-bold text-white mb-6">Compose Email</h2>
+        <Card className="lg:col-span-2 border-zinc-800 bg-zinc-950/80 p-5 shadow-sm">
+          <h2 className="mb-4 text-sm font-semibold tracking-tight text-zinc-50">Compose email</h2>
 
-          <div className="space-y-4">
+          <div className="space-y-4 text-sm">
             {/* Class Selection */}
-            <div>
-              <Label className="text-white">Select Class</Label>
+            <div className="space-y-1">
+              <Label className="text-zinc-200">Select class</Label>
               <Select value={selectedClassId} onValueChange={setSelectedClassId}>
-                <SelectTrigger className="bg-black border-red-600/50 text-white">
+                <SelectTrigger className="bg-zinc-900 border-zinc-800 text-zinc-50">
                   <SelectValue placeholder="Choose a class" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900 border-red-600">
+                <SelectContent className="border-zinc-800 bg-zinc-950">
                   {classes.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
                       {c.title} ({c.registrationCount} registered)
@@ -147,27 +147,27 @@ export default function EmailsPage() {
             </div>
 
             {/* Subject */}
-            <div>
-              <Label className="text-white">Subject *</Label>
+            <div className="space-y-1">
+              <Label className="text-zinc-200">Subject *</Label>
               <Input
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 placeholder="Email subject"
-                className="bg-black border-red-600/50 text-white"
+                className="bg-zinc-900 border-zinc-800 text-zinc-50"
               />
             </div>
 
             {/* Body */}
-            <div>
-              <Label className="text-white">Message *</Label>
+            <div className="space-y-1">
+              <Label className="text-zinc-200">Message *</Label>
               <Textarea
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 placeholder="Write your message here... (HTML supported)"
                 rows={12}
-                className="bg-black border-red-600/50 text-white font-mono text-sm"
+                className="bg-zinc-900 border-zinc-800 text-zinc-50 font-mono text-xs"
               />
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="mt-1 text-xs text-zinc-500">
                 Tip: You can use HTML for formatting
               </p>
             </div>
@@ -176,9 +176,9 @@ export default function EmailsPage() {
             <Button
               onClick={handleSendEmail}
               disabled={isLoading || selectedRecipients.length === 0}
-              className="w-full bg-red-600 hover:bg-red-700"
+              className="w-full"
             >
-              <Send className="h-4 w-4 mr-2" />
+              <Send className="mr-2 h-3.5 w-3.5" />
               {isLoading
                 ? "Sending..."
                 : `Send to ${selectedRecipients.length} recipient(s)`}
@@ -187,15 +187,17 @@ export default function EmailsPage() {
         </Card>
 
         {/* Recipients List */}
-        <Card className="bg-gray-900 border-2 border-red-600 p-6">
-          <h2 className="text-2xl font-bold text-white mb-6">
-            Recipients ({selectedRecipients.length})
-          </h2>
+        <Card className="border-zinc-800 bg-zinc-950/80 p-5 shadow-sm">
+          <div className="mb-4 flex items-center justify-between gap-2 text-sm">
+            <h2 className="font-semibold tracking-tight text-zinc-50">
+              Recipients ({selectedRecipients.length})
+            </h2>
+          </div>
 
           {registrations.length > 0 ? (
             <div className="space-y-3">
               {/* Select All */}
-              <div className="flex items-center space-x-2 pb-3 border-b border-red-600/30">
+              <div className="flex items-center space-x-2 border-b border-zinc-800 pb-3">
                 <Checkbox
                   id="select-all"
                   checked={selectedRecipients.length === registrations.length}
@@ -203,18 +205,18 @@ export default function EmailsPage() {
                 />
                 <label
                   htmlFor="select-all"
-                  className="text-sm font-medium text-white cursor-pointer"
+                  className="cursor-pointer text-xs font-medium text-zinc-200"
                 >
                   Select All
                 </label>
               </div>
 
               {/* Recipients */}
-              <div className="space-y-2 max-h-[500px] overflow-y-auto">
+              <div className="max-h-[500px] space-y-2 overflow-y-auto">
                 {registrations.map((reg) => (
                   <div
                     key={reg.id}
-                    className="flex items-start space-x-2 p-2 rounded hover:bg-black/50"
+                    className="flex items-start space-x-2 rounded p-2 hover:bg-zinc-900/60"
                   >
                     <Checkbox
                       id={reg.id}
@@ -225,17 +227,17 @@ export default function EmailsPage() {
                       htmlFor={reg.id}
                       className="flex-1 cursor-pointer"
                     >
-                      <p className="text-white text-sm font-medium">{reg.name}</p>
-                      <p className="text-gray-400 text-xs">{reg.email}</p>
+                      <p className="text-xs font-medium text-zinc-50">{reg.name}</p>
+                      <p className="text-[11px] text-zinc-400">{reg.email}</p>
                     </label>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="text-center py-8">
-              <Mail className="h-12 w-12 text-gray-600 mx-auto mb-3" />
-              <p className="text-gray-400">
+            <div className="py-8 text-center text-xs text-zinc-500">
+              <Mail className="mx-auto mb-3 h-10 w-10 text-zinc-600" />
+              <p>
                 {selectedClassId
                   ? "No registered users for this class"
                   : "Select a class to view recipients"}
@@ -246,48 +248,48 @@ export default function EmailsPage() {
       </div>
 
       {/* Email Templates */}
-      <Card className="bg-gray-900 border-2 border-red-600 p-6">
-        <h2 className="text-2xl font-bold text-white mb-4">Quick Templates</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <Card className="border-zinc-800 bg-zinc-950/80 p-5 shadow-sm">
+        <h2 className="mb-3 text-sm font-semibold tracking-tight text-zinc-50">Quick templates</h2>
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           <Button
             variant="outline"
-            className="justify-start text-left h-auto p-4"
+            className="h-auto justify-start border-zinc-800 bg-zinc-950 text-left text-xs hover:border-zinc-500 hover:bg-zinc-900/80"
             onClick={() => {
               setSubject("Important Update About Your Class");
               setBody(`<p>Hi there!</p><p>We have an important update regarding your upcoming class.</p><p>Please check the details below...</p>`);
             }}
           >
             <div>
-              <p className="font-semibold">Class Update</p>
-              <p className="text-xs text-gray-400">General announcement template</p>
+              <p className="font-semibold text-zinc-50">Class update</p>
+              <p className="text-[11px] text-zinc-400">General announcement template</p>
             </div>
           </Button>
 
           <Button
             variant="outline"
-            className="justify-start text-left h-auto p-4"
+            className="h-auto justify-start border-zinc-800 bg-zinc-950 text-left text-xs hover:border-zinc-500 hover:bg-zinc-900/80"
             onClick={() => {
               setSubject("Reminder: Class Starting Soon");
               setBody(`<p>Hello!</p><p>This is a reminder that your class is starting soon.</p><p>Make sure you're ready to join!</p>`);
             }}
           >
             <div>
-              <p className="font-semibold">Reminder</p>
-              <p className="text-xs text-gray-400">Class reminder template</p>
+              <p className="font-semibold text-zinc-50">Reminder</p>
+              <p className="text-[11px] text-zinc-400">Class reminder template</p>
             </div>
           </Button>
 
           <Button
             variant="outline"
-            className="justify-start text-left h-auto p-4"
+            className="h-auto justify-start border-zinc-800 bg-zinc-950 text-left text-xs hover:border-zinc-500 hover:bg-zinc-900/80"
             onClick={() => {
               setSubject("Thank You for Attending!");
               setBody(`<p>Thank you for attending the class!</p><p>We hope you found it valuable. Here are some resources...</p>`);
             }}
           >
             <div>
-              <p className="font-semibold">Thank You</p>
-              <p className="text-xs text-gray-400">Post-class follow-up</p>
+              <p className="font-semibold text-zinc-50">Thank you</p>
+              <p className="text-[11px] text-zinc-400">Post-class follow-up</p>
             </div>
           </Button>
         </div>

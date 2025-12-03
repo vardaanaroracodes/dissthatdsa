@@ -1,7 +1,7 @@
 "use client";
 
-// Admin dashboard layout with navigation sidebar
-// Provides consistent navigation across all admin pages
+// Admin dashboard layout with modern light shell
+// Shared app chrome: sidebar + top bar + content area
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -13,10 +13,11 @@ import {
   Shield,
   LogOut,
   Menu,
-  X
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import toast from "react-hot-toast";
+import { Card } from "@/components/ui/card";
+import { useSession, signOut } from "next-auth/react";
 
 interface NavItem {
   name: string;
@@ -26,7 +27,7 @@ interface NavItem {
 }
 
 const navigation: NavItem[] = [
-  { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+  { name: "Overview", href: "/admin/dashboard", icon: LayoutDashboard },
   { name: "Classes", href: "/admin/dashboard/classes", icon: Calendar },
   { name: "Registrations", href: "/admin/dashboard/registrations", icon: Users },
   { name: "Email Campaigns", href: "/admin/dashboard/emails", icon: Mail },
@@ -40,130 +41,144 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { data: session } = useSession();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [admin, setAdmin] = useState<any>(null);
+  const [isClient, setIsClient] = useState(false);
 
-  // Check authentication on mount
   useEffect(() => {
-    // Verify admin session would go here
-    // For now, just storing from login
+    setIsClient(true);
   }, []);
 
   const handleLogout = async () => {
-    try {
-      // Clear session cookie
-      document.cookie = "admin_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      toast.success("Logged out successfully");
-      router.push("/admin/login");
-    } catch (error) {
-      toast.error("Logout failed");
-    }
+    await signOut({ callbackUrl: "/admin" });
   };
 
-  return (
-    <div className="min-h-screen bg-black">
-      {/* Mobile menu button */}
-      <div className="lg:hidden fixed top-4 left-4 z-50">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="bg-gray-900 border-red-600"
-        >
-          {isSidebarOpen ? (
-            <X className="h-6 w-6 text-white" />
-          ) : (
-            <Menu className="h-6 w-6 text-white" />
-          )}
-        </Button>
+  // Avoid hydration mismatch while session loads
+  if (!isClient) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-muted">
+        <span className="text-sm text-muted-foreground">Loading admin...</span>
       </div>
+    );
+  }
 
-      {/* Sidebar */}
-      <aside
-        className={`
-          fixed inset-y-0 left-0 z-40 w-64 bg-gray-900 border-r-2 border-red-600
-          transform transition-transform duration-300 ease-in-out
-          lg:translate-x-0
-          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        `}
-      >
-        <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className="p-6 border-b border-red-600/30">
-            <h1 className="text-2xl font-bold text-red-600">Admin Portal</h1>
-            <p className="text-sm text-gray-400 mt-1">Class Management System</p>
+  const adminUser = session?.user as any | undefined;
+
+  return (
+    <div className="min-h-screen bg-muted/40 text-foreground">
+      <div className="flex h-screen max-h-screen">
+        {/* Sidebar */}
+        <aside
+          className={`
+            fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r bg-background
+            transition-transform duration-300 ease-in-out
+            lg:static lg:translate-x-0
+            ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+          `}
+        >
+          {/* Brand */}
+          <div className="flex h-16 items-center border-b bg-background px-5">
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold tracking-tight">Dissthat DSA</span>
+              <span className="text-xs text-muted-foreground">Admin console</span>
+            </div>
           </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+          {/* Nav */}
+          <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
             {navigation.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
 
-              // Hide superadmin-only items from regular admins
-              if (item.superAdminOnly && admin?.role !== 'SUPERADMIN') {
+              if (item.superAdminOnly && adminUser?.role !== "SUPERADMIN") {
                 return null;
               }
 
               return (
-                <a
+                <button
                   key={item.name}
-                  href={item.href}
+                  onClick={() => {
+                    router.push(item.href);
+                    setIsSidebarOpen(false);
+                  }}
                   className={`
-                    flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
+                    flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium
+                    transition-colors
                     ${isActive
-                      ? 'bg-red-600 text-white'
-                      : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                    }
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"}
                   `}
-                  onClick={() => setIsSidebarOpen(false)}
                 >
-                  <Icon className="h-5 w-5" />
-                  <span className="font-medium">{item.name}</span>
-                </a>
+                  <Icon className="h-4 w-4" />
+                  <span>{item.name}</span>
+                </button>
               );
             })}
           </nav>
 
-          {/* User info & Logout */}
-          <div className="p-4 border-t border-red-600/30">
-            <div className="mb-3">
-              <p className="text-sm text-gray-400">Signed in as</p>
-              <p className="text-white font-medium truncate">
-                {admin?.email || 'admin@example.com'}
-              </p>
-              {admin?.role === 'SUPERADMIN' && (
-                <span className="inline-block mt-1 px-2 py-1 text-xs bg-red-600 text-white rounded">
-                  SUPERADMIN
-                </span>
-              )}
+          {/* User footer */}
+          <div className="border-t bg-background px-4 py-3 text-sm">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="truncate font-medium">
+                  {adminUser?.name || adminUser?.email || "Admin"}
+                </p>
+                <p className="truncate text-xs text-muted-foreground">
+                  {adminUser?.email || "Signed in"}
+                </p>
+              </div>
+              <Button
+                size="icon"
+                variant="outline"
+                className="shrink-0"
+                onClick={handleLogout}
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
             </div>
-            <Button
-              variant="outline"
-              onClick={handleLogout}
-              className="w-full border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
           </div>
-        </div>
-      </aside>
+        </aside>
 
-      {/* Main content */}
-      <main className="lg:ml-64 min-h-screen">
-        <div className="p-6 lg:p-8">
-          {children}
-        </div>
-      </main>
+        {/* Main area */}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          {/* Top bar */}
+          <header className="flex h-16 items-center justify-between gap-3 border-b bg-background/80 px-4 lg:px-6">
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                className="lg:hidden"
+                onClick={() => setIsSidebarOpen((prev) => !prev)}
+              >
+                {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </Button>
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold leading-tight">Admin dashboard</span>
+                <span className="text-xs text-muted-foreground">
+                  Manage classes, registrations and communication
+                </span>
+              </div>
+            </div>
 
-      {/* Overlay for mobile */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
+            {adminUser && (
+              <Card className="flex items-center gap-3 rounded-full border bg-background px-3 py-1.5 shadow-sm">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                  {adminUser.name?.[0]?.toUpperCase() || adminUser.email?.[0]?.toUpperCase() || "A"}
+                </div>
+                <div className="hidden text-xs leading-tight sm:block">
+                  <p className="font-medium truncate max-w-40">{adminUser.name || "Admin"}</p>
+                  <p className="text-muted-foreground truncate max-w-40">{adminUser.email}</p>
+                </div>
+              </Card>
+            )}
+          </header>
+
+          {/* Content */}
+          <main className="flex-1 overflow-y-auto px-4 py-6 lg:px-8 lg:py-8">
+            <div className="mx-auto w-full max-w-6xl space-y-6">{children}</div>
+          </main>
+        </div>
+      </div>
     </div>
   );
 }

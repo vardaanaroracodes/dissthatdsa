@@ -128,45 +128,45 @@ export default function RegistrationsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "COMPLETED":
-        return "bg-green-600";
+        return "bg-emerald-100 text-emerald-700";
       case "PENDING":
-        return "bg-yellow-600";
+        return "bg-amber-100 text-amber-800";
       case "FAILED":
-        return "bg-red-600";
+        return "bg-red-100 text-red-700";
       default:
-        return "bg-gray-600";
+        return "bg-muted text-muted-foreground";
     }
   };
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-4xl font-bold text-white">Registrations</h1>
-        <p className="text-gray-400 mt-1">View and manage all class registrations</p>
+      <div className="space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight">Registrations</h1>
+        <p className="text-sm text-muted-foreground">Search, filter and export attendees across all classes.</p>
       </div>
 
       {/* Filters */}
-      <Card className="bg-gray-900 border-2 border-red-600 p-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <Card className="border border-border bg-background p-5 shadow-sm">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
             <Input
               placeholder="Search by name, email, or phone..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-black border-red-600/50 text-white"
+              className="pl-10"
             />
           </div>
 
           {/* Class Filter */}
           <Select value={selectedClass} onValueChange={setSelectedClass}>
-            <SelectTrigger className="bg-black border-red-600/50 text-white">
-              <SelectValue placeholder="All Classes" />
+            <SelectTrigger>
+              <SelectValue placeholder="All classes" />
             </SelectTrigger>
-            <SelectContent className="bg-gray-900 border-red-600">
-              <SelectItem value="all">All Classes</SelectItem>
+            <SelectContent>
+              <SelectItem value="all">All classes</SelectItem>
               {classes.map((c) => (
                 <SelectItem key={c.id} value={c.id}>
                   {c.title}
@@ -177,11 +177,11 @@ export default function RegistrationsPage() {
 
           {/* Status Filter */}
           <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-            <SelectTrigger className="bg-black border-red-600/50 text-white">
-              <SelectValue placeholder="All Statuses" />
+            <SelectTrigger>
+              <SelectValue placeholder="All statuses" />
             </SelectTrigger>
-            <SelectContent className="bg-gray-900 border-red-600">
-              <SelectItem value="all">All Statuses</SelectItem>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
               <SelectItem value="COMPLETED">Completed</SelectItem>
               <SelectItem value="PENDING">Pending</SelectItem>
               <SelectItem value="FAILED">Failed</SelectItem>
@@ -192,76 +192,76 @@ export default function RegistrationsPage() {
           <Button
             onClick={exportToCSV}
             disabled={filteredRegistrations.length === 0}
-            className="bg-red-600 hover:bg-red-700"
+            className="justify-center"
           >
-            <Download className="h-4 w-4 mr-2" />
+            <Download className="mr-2 h-3.5 w-3.5" />
             Export CSV
           </Button>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mt-6">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-white">{filteredRegistrations.length}</p>
-            <p className="text-sm text-gray-400">Total Registrations</p>
+        <div className="mt-5 grid grid-cols-3 gap-4 text-sm">
+          <div className="rounded-md border border-border bg-muted/60 px-3 py-2 text-left">
+            <p className="text-xs text-muted-foreground">Total registrations</p>
+            <p className="text-lg font-semibold">{filteredRegistrations.length}</p>
           </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-green-600">
+          <div className="rounded-md border border-border bg-muted/60 px-3 py-2 text-left">
+            <p className="text-xs text-muted-foreground">Completed</p>
+            <p className="text-lg font-semibold text-emerald-700">
               {filteredRegistrations.filter((r) => r.paymentStatus === "COMPLETED").length}
             </p>
-            <p className="text-sm text-gray-400">Completed</p>
           </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-red-600">
+          <div className="rounded-md border border-border bg-muted/60 px-3 py-2 text-left">
+            <p className="text-xs text-muted-foreground">Total revenue</p>
+            <p className="text-lg font-semibold">
               ₹
               {filteredRegistrations
                 .filter((r) => r.paymentStatus === "COMPLETED")
                 .reduce((sum, r) => sum + r.amount, 0)
                 .toLocaleString("en-IN")}
             </p>
-            <p className="text-sm text-gray-400">Total Revenue</p>
           </div>
         </div>
       </Card>
 
       {/* Table */}
-      <Card className="bg-gray-900 border-2 border-red-600 overflow-hidden">
+      <Card className="overflow-hidden border border-border bg-background shadow-sm">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="border-red-600/30">
-                <TableHead className="text-white">Name</TableHead>
-                <TableHead className="text-white">Email</TableHead>
-                <TableHead className="text-white">Phone</TableHead>
-                <TableHead className="text-white">Class</TableHead>
-                <TableHead className="text-white">Status</TableHead>
-                <TableHead className="text-white">Amount</TableHead>
-                <TableHead className="text-white">Registered</TableHead>
+              <TableRow className="border-border">
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Name</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Email</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Phone</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Class</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Status</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Amount</TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Registered</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredRegistrations.length > 0 ? (
                 filteredRegistrations.map((registration) => (
-                  <TableRow key={registration.id} className="border-red-600/30">
-                    <TableCell className="text-white font-medium">{registration.name}</TableCell>
-                    <TableCell className="text-gray-300">{registration.email}</TableCell>
-                    <TableCell className="text-gray-300">{registration.phone}</TableCell>
-                    <TableCell className="text-gray-300">{registration.class.title}</TableCell>
-                    <TableCell>
+                  <TableRow key={registration.id} className="border-border">
+                    <TableCell className="py-3 text-sm font-medium">{registration.name}</TableCell>
+                    <TableCell className="py-3 text-xs text-muted-foreground">{registration.email}</TableCell>
+                    <TableCell className="py-3 text-xs text-muted-foreground">{registration.phone}</TableCell>
+                    <TableCell className="py-3 text-xs text-muted-foreground">{registration.class.title}</TableCell>
+                    <TableCell className="py-3">
                       <Badge className={getStatusColor(registration.paymentStatus)}>
                         {registration.paymentStatus}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-gray-300">₹{registration.amount}</TableCell>
-                    <TableCell className="text-gray-300">
+                    <TableCell className="py-3 text-xs text-muted-foreground">₹{registration.amount}</TableCell>
+                    <TableCell className="py-3 text-xs text-muted-foreground">
                       {new Date(registration.registeredAt).toLocaleDateString("en-IN")}
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-gray-400 py-8">
-                    {isLoading ? "Loading..." : "No registrations found"}
+                  <TableCell colSpan={7} className="py-8 text-center text-xs text-muted-foreground">
+                    {isLoading ? "Loading…" : "No registrations found"}
                   </TableCell>
                 </TableRow>
               )}
