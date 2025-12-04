@@ -38,7 +38,7 @@ export async function GET() {
     });
 
     // Add available spots calculation
-    const classesWithAvailability = classes.map(c => ({
+    const classesWithAvailability = classes.map((c: any) => ({
       ...c,
       registrationCount: c._count.registrations,
       availableSpots: c.maxParticipants ? c.maxParticipants - c._count.registrations : null,
