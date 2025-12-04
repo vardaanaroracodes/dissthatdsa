@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Add registration count to each class
-    const classesWithCount = classes.map(c => ({
+    const classesWithCount = classes.map((c) => ({
       ...c,
       registrationCount: c.registrations.length,
     }));
