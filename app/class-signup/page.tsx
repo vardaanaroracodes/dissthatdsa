@@ -43,9 +43,15 @@ export default function ClassSignup() {
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingClasses, setIsLoadingClasses] = useState(true);
 
-  // Fetch live classes on mount
+  // Fetch live classes on mount and preselect if classId is passed in URL
   useEffect(() => {
     fetchLiveClasses();
+
+    const params = new URLSearchParams(window.location.search);
+    const preselectId = params.get("classId");
+    if (preselectId) {
+      setFormData((prev) => ({ ...prev, classId: preselectId }));
+    }
   }, []);
 
   // Update selected class when classId changes
@@ -204,25 +210,33 @@ export default function ClassSignup() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white py-20 px-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-black text-white py-16 px-4">
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-red-600">
-            Join Our DSA Classes
+        <div className="space-y-3 text-left md:text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500">
+            Live DSA Batches
+          </p>
+          <h1 className="text-3xl md:text-4xl font-semibold md:font-bold text-red-500">
+            Book your next class
           </h1>
-          <p className="text-xl text-gray-300 mb-2">
-            Master Data Structures & Algorithms
+          <p className="max-w-2xl text-sm md:text-base text-zinc-300 md:mx-auto">
+            Fill in your details once, pick a live batch, and we7ll send you the class link and reminders on email and WhatsApp.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid gap-6 md:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] rounded-2xl border border-red-500/20 bg-[#050509] p-5 md:p-7 shadow-[0_0_45px_rgba(248,113,113,0.18)]">
           {/* Registration Form */}
-          <div className="bg-gray-900 border-2 border-red-600 rounded-lg p-8">
-            <h2 className="text-2xl font-bold text-white mb-6">Registration Form</h2>
+          <div className="flex flex-col gap-5 rounded-2xl bg-black/40 p-4 md:p-6">
+            <div>
+              <h2 className="text-xl font-semibold text-white">Your details</h2>
+              <p className="mt-1 text-xs text-zinc-400">
+                We7ll use this to send confirmations, class links and reminders.
+              </p>
+            </div>
             <form onSubmit={handlePayment} className="space-y-6">
               {/* Name */}
-              <div>
+                  <div className="space-y-1 text-sm">
                 <label htmlFor="name" className="block text-sm font-medium mb-2">
                   Full Name *
                 </label>
@@ -239,7 +253,7 @@ export default function ClassSignup() {
               </div>
 
               {/* Email */}
-              <div>
+                  <div className="space-y-1 text-sm">
                 <label htmlFor="email" className="block text-sm font-medium mb-2">
                   Email Address *
                 </label>
@@ -256,7 +270,7 @@ export default function ClassSignup() {
               </div>
 
               {/* Phone */}
-              <div>
+                  <div className="space-y-1 text-sm">
                 <label htmlFor="phone" className="block text-sm font-medium mb-2">
                   Phone Number *
                 </label>
@@ -274,7 +288,7 @@ export default function ClassSignup() {
               </div>
 
               {/* Class Selection */}
-              <div>
+                  <div className="space-y-1 text-sm">
                 <label htmlFor="classId" className="block text-sm font-medium mb-2">
                   Select Class *
                 </label>
@@ -310,7 +324,7 @@ export default function ClassSignup() {
               <button
                 type="submit"
                 disabled={isLoading || !formData.classId || selectedClass?.isFull}
-                className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-lg transition-colors duration-200 text-lg"
+                className="mt-2 w-full rounded-lg bg-red-600 py-3.5 text-sm font-semibold text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:bg-zinc-700"
               >
                 {isLoading
                   ? "Processing..."
@@ -322,19 +336,31 @@ export default function ClassSignup() {
           </div>
 
           {/* Class Details */}
-          <div>
+          <div className="flex flex-col gap-4 rounded-2xl bg-black/40 p-4 md:p-6">
             {selectedClass ? (
-              <div className="bg-gray-900 border-2 border-red-600 rounded-lg p-8">
-                <h2 className="text-2xl font-bold text-white mb-4">Class Details</h2>
+              <div className="space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h2 className="text-lg font-semibold text-white">Class overview</h2>
+                    <p className="mt-1 text-xs text-zinc-400">
+                      Double-check the timing and fee before paying.
+                    </p>
+                  </div>
+                  <span className="rounded-full border border-red-500/50 bg-red-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-red-300">
+                    Live
+                  </span>
+                </div>
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-xl font-semibold text-red-600 mb-2">
+                    <h3 className="text-base md:text-lg font-semibold text-red-400 mb-1">
                       {selectedClass.title}
                     </h3>
-                    <p className="text-gray-300 text-sm">{selectedClass.description}</p>
+                    <p className="text-xs md:text-sm text-zinc-300">
+                      {selectedClass.description}
+                    </p>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-red-600/30">
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-red-600/15 text-xs md:text-sm">
                     <div>
                       <p className="text-gray-400 text-sm">Date & Time</p>
                       <p className="text-white font-medium">
@@ -351,8 +377,8 @@ export default function ClassSignup() {
                       <p className="text-white font-medium">{selectedClass.duration} minutes</p>
                     </div>
                     <div>
-                      <p className="text-gray-400 text-sm">Price</p>
-                      <p className="text-red-600 font-bold text-2xl">₹{selectedClass.price}</p>
+                      <p className="text-gray-400 text-xs">Price</p>
+                      <p className="text-xl font-bold text-red-500">₹{selectedClass.price}</p>
                     </div>
                     <div>
                       <p className="text-gray-400 text-sm">Registered</p>
@@ -364,8 +390,8 @@ export default function ClassSignup() {
                     </div>
                   </div>
 
-                  <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mt-6">
-                    <p className="text-yellow-400 text-sm">
+                  <div className="mt-5 rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-3 text-xs md:text-[13px]">
+                    <p className="text-yellow-300">
                       <strong>⚠️ Important:</strong> After successful payment, you will receive a
                       confirmation email. The class link will be sent to your email{" "}
                       <strong>15 minutes before</strong> the scheduled time.
@@ -374,8 +400,11 @@ export default function ClassSignup() {
                 </div>
               </div>
             ) : (
-              <div className="bg-gray-900 border-2 border-red-600 rounded-lg p-8 text-center">
-                <p className="text-gray-400">Select a class to view details</p>
+              <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center text-xs text-zinc-400">
+                <div className="h-10 w-10 rounded-full border border-dashed border-zinc-600/60" />
+                <p>
+                  Pick a batch on the left to see timing, duration and fee here.
+                </p>
               </div>
             )}
 

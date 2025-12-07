@@ -10,13 +10,13 @@ import {
   Calendar,
   Users,
   Mail,
+  Send as SendIcon,
   Shield,
   LogOut,
   Menu,
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import {
   Popover,
   PopoverContent,
@@ -36,6 +36,7 @@ const navigation: NavItem[] = [
   { name: "Classes", href: "/admin/dashboard/classes", icon: Calendar },
   { name: "Registrations", href: "/admin/dashboard/registrations", icon: Users },
   { name: "Email Campaigns", href: "/admin/dashboard/emails", icon: Mail },
+  { name: "Bulk Send", href: "/admin/dashboard/bulk-send", icon: SendIcon },
   { name: "Admin Approvals", href: "/admin/dashboard/approvals", icon: Shield, superAdminOnly: true },
 ];
 

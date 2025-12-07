@@ -13,17 +13,28 @@ interface SendEmailParams {
   html: string
   registrationId?: string
   emailId?: string
+  from?: string
+  attachments?: Array<{
+    filename: string
+    path: string
+  }>
 }
 
 // Send a single email with tracking
-export async function sendEmail({ to, subject, html, registrationId, emailId }: SendEmailParams) {
+export async function sendEmail({ to, subject, html, registrationId, emailId, from = 'admin@dissthatdsa.dev', attachments }: SendEmailParams) {
   try {
-    const result = await resend.emails.send({
-      from: 'admin@dissthatdsa.dev', // Update with your verified domain
+    const emailOptions: any = {
+      from,
       to,
       subject,
       html,
-    })
+    }
+
+    if (attachments && attachments.length > 0) {
+      emailOptions.attachments = attachments
+    }
+
+    const result = await resend.emails.send(emailOptions)
     console.log('Email sent:', result)
     // Track email in database if emailId and registrationId provided
     if (emailId && registrationId) {
