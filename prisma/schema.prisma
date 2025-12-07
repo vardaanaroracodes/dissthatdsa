@@ -108,6 +108,7 @@ model Email {
   // Sender information
   sentById      String
   sentBy        Admin    @relation("EmailSender", fields: [sentById], references: [id], onDelete: Cascade)
+  senderEmail   String   @default("admin@dissthatdsa.dev") // Custom sender email
 
   // Associated class (optional - can send emails to users across classes)
   classId       String?
@@ -116,10 +117,27 @@ model Email {
 
   // Relations
   recipients    EmailRecipient[]
+  attachments   EmailAttachment[]
 
   @@index([sentById])
   @@index([classId])
   @@index([sentAt])
+}
+
+// Email attachments
+model EmailAttachment {
+  id        String   @id @default(cuid())
+  emailId   String
+  email     Email    @relation(fields: [emailId], references: [id], onDelete: Cascade)
+
+  fileName  String
+  fileUrl   String   @db.Text // S3 or storage URL
+  fileSize  Int      // File size in bytes
+  mimeType  String   // e.g., application/pdf, image/png
+
+  createdAt DateTime @default(now())
+
+  @@index([emailId])
 }
 
 // Individual email delivery status tracking
